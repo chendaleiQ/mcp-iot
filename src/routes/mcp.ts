@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
-import { randomUUID } from "node:crypto";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { McpServerService } from "../services/mcpServer";
-import { validateSession } from "../middleware";
-import { logger } from "../utils/logger";
+import { Request, Response } from 'express';
+import { randomUUID } from 'node:crypto';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { McpServerService } from '../services/mcpServer';
+import { validateSession } from '../middleware';
+import { logger } from '../utils/logger';
+import requestIp from 'request-ip';
 
 export class McpRoutes {
   private mcpService: McpServerService;
@@ -14,7 +15,11 @@ export class McpRoutes {
 
   // 处理POST请求（客户端到服务器通信）
   async handlePost(req: Request, res: Response): Promise<void> {
-    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+    // 获取真实IP
+    const realIp = requestIp.getClientIp(req) || req.ip;
+    req.headers['x-real-ip'] = realIp;
+    (req as any).realIp = realIp;
+    const sessionId = req.headers['mcp-session-id'] as string | undefined;
     const sessionManager = this.mcpService.getSessionManager();
     let transport: StreamableHTTPServerTransport;
 
@@ -23,11 +28,8 @@ export class McpRoutes {
         // 重用现有传输层
         transport = sessionManager.getSession(sessionId)!;
         sessionManager.refreshSession(sessionId);
-        logger.debug("Reusing existing session", { sessionId });
-      } else if (
-        !sessionId &&
-        McpServerService.isValidInitializationRequest(req.body)
-      ) {
+        logger.debug('Reusing existing session', { sessionId });
+      } else if (!sessionId && McpServerService.isValidInitializationRequest(req.body)) {
         // 新的初始化请求
         const newSessionId = randomUUID();
         transport = new StreamableHTTPServerTransport({
@@ -38,20 +40,18 @@ export class McpRoutes {
         });
 
         await this.mcpService.handleInitialization(transport, newSessionId);
-        logger.info("New MCP session initialized", { sessionId: newSessionId });
+        logger.info('New MCP session initialized', { sessionId: newSessionId });
       } else {
         // 无效请求
-        logger.warn("Invalid MCP request", {
+        logger.warn('Invalid MCP request', {
           hasSessionId: !!sessionId,
-          isInitRequest: McpServerService.isValidInitializationRequest(
-            req.body,
-          ),
+          isInitRequest: McpServerService.isValidInitializationRequest(req.body),
         });
         res.status(400).json({
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           error: {
             code: -32000,
-            message: "Bad Request: No valid session ID provided",
+            message: 'Bad Request: No valid session ID provided',
           },
           id: null,
         });
@@ -61,15 +61,15 @@ export class McpRoutes {
       // 处理请求
       await transport.handleRequest(req, res, req.body);
     } catch (error) {
-      logger.error("Error handling MCP request", {
+      logger.error('Error handling MCP request', {
         error: error instanceof Error ? error.message : String(error),
-        sessionId: sessionId || "unknown",
+        sessionId: sessionId || 'unknown',
       });
       res.status(500).json({
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         error: {
           code: -32603,
-          message: "Internal server error",
+          message: 'Internal server error',
         },
         id: null,
       });
@@ -78,16 +78,16 @@ export class McpRoutes {
 
   // 处理GET和DELETE请求的通用处理器
   async handleSessionRequest(req: Request, res: Response): Promise<void> {
-    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+    const sessionId = req.headers['mcp-session-id'] as string | undefined;
     const sessionManager = this.mcpService.getSessionManager();
 
     if (!sessionId || !sessionManager.getSession(sessionId)) {
-      logger.warn("Invalid session request", {
-        sessionId: sessionId || "missing",
+      logger.warn('Invalid session request', {
+        sessionId: sessionId || 'missing',
         method: req.method,
         hasSession: sessionId ? !!sessionManager.getSession(sessionId) : false,
       });
-      res.status(400).send("Invalid or missing session ID");
+      res.status(400).send('Invalid or missing session ID');
       return;
     }
 
@@ -96,17 +96,17 @@ export class McpRoutes {
 
     try {
       await transport.handleRequest(req, res);
-      logger.debug("Session request handled", {
+      logger.debug('Session request handled', {
         sessionId,
         method: req.method,
       });
     } catch (error) {
-      logger.error("Error handling session request", {
+      logger.error('Error handling session request', {
         error: error instanceof Error ? error.message : String(error),
-        sessionId: sessionId || "unknown",
+        sessionId: sessionId || 'unknown',
         method: req.method,
       });
-      res.status(500).send("Internal server error");
+      res.status(500).send('Internal server error');
     }
   }
 
@@ -114,12 +114,12 @@ export class McpRoutes {
   getHealthInfo(): any {
     const sessionManager = this.mcpService.getSessionManager();
     const healthInfo = {
-      status: "ok",
+      status: 'ok',
       timestamp: new Date().toISOString(),
       activeSessions: sessionManager.getActiveSessionsCount(),
     };
 
-    logger.debug("Health check requested", healthInfo);
+    logger.debug('Health check requested', healthInfo);
     return healthInfo;
   }
 }

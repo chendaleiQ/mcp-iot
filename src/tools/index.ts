@@ -24,9 +24,15 @@ export function registerTools(server: McpServer) {
     iotControl(args),
   );
 
-  server.tool('getLocation', '获取用户当前定位的城市名称', locationParams, async () =>
-    getLocation(),
-  );
+  server.tool('getLocation', '获取用户当前定位的城市名称', locationParams, async (_args, extra) => {
+    let ip = undefined;
+    console.log('extra', extra);
+    if (extra && extra._meta) {
+      ip = (extra._meta as any).headers?.['x-real-ip'] || (extra._meta as any).ip;
+    }
+    console.log('ip', ip);
+    return getLocation({ ip });
+  });
 }
 
 // 导出所有工具函数

@@ -16,6 +16,7 @@ export interface TransportManager {
 export interface WeatherParams {
   city?: string;
   unit: 'celsius' | 'fahrenheit';
+  days?: number; // 新增，查询未来几天的天气，1为仅今日，最大7天
 }
 
 export interface CalculatorParams {

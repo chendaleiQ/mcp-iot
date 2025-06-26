@@ -1,285 +1,208 @@
-# MCP Server - 模块化架构
+# MCP Server - 模块化多工具服务
 
-这是一个基于 Model Context Protocol (MCP) 的服务器，采用模块化架构设计，提供天气查询、数学计算和搜索等功能。
+> **English below 中文介绍**
 
-## 🏗️ 项目架构
+---
 
-### 目录结构
+## 📝 项目简介
+
+MCP Server 是基于 Model Context Protocol (MCP) 的模块化服务端，支持天气、定位、数学计算、IoT 设备控制、GitHub 搜索等多种工具，适合智能体/AI 助手等场景。
+
+## 📁 目录结构
 
 ```
-src/
-├── app.ts                 # 应用程序主类
-├── index.ts              # 入口文件
-├── config/               # 配置管理
-│   └── index.ts
-├── types/                # 类型定义
-│   └── index.ts
-├── middleware/           # 中间件
-│   └── index.ts
-├── routes/               # 路由处理
-│   └── mcp.ts
-├── services/             # 业务服务
-│   ├── mcpServer.ts
-│   └── sessionManager.ts
-├── tools/                # MCP工具函数
-│   ├── index.ts
-│   ├── weather.ts
-│   ├── calculator.ts
-│   └── search.ts
-└── utils/                # 通用工具函数
-    ├── index.ts
-    └── logger.ts
+├── src/
+│   ├── app.ts              # 应用主类
+│   ├── index.ts            # 启动入口
+│   ├── config/             # 配置
+│   ├── types/              # 类型定义
+│   ├── middleware/         # 中间件
+│   ├── routes/             # 路由
+│   ├── services/           # 业务服务
+│   ├── tools/              # 工具函数（天气、定位、计算、IoT、搜索等）
+│   └── utils/              # 通用工具
+├── test/                   # 测试脚本
+├── package.json            # 依赖与脚本
+├── tsconfig.json           # TypeScript 配置
+└── ...
 ```
-
-### 模块说明
-
-#### 1. 配置模块 (`config/`)
-
-- 环境变量配置管理
-- 服务器配置
-- 日志配置
-- 会话配置
-
-#### 2. 类型定义 (`types/`)
-
-- 服务器配置类型
-- 传输层管理类型
-- 工具函数参数和返回类型
-- 健康检查响应类型
-
-#### 3. 中间件 (`middleware/`)
-
-- 请求日志中间件
-- 错误处理中间件
-- 会话验证中间件
-- CORS 配置
-
-#### 4. 路由处理 (`routes/`)
-
-- MCP 协议路由处理
-- 会话管理
-- 健康检查端点
-
-#### 5. 业务服务 (`services/`)
-
-- **MCP服务器服务**: 处理MCP协议逻辑
-- **会话管理器**: 管理客户端会话和超时
-
-#### 6. MCP工具函数 (`tools/`)
-
-- **天气工具**: 天气查询功能
-- **计算器工具**: 数学运算功能
-- **搜索工具**: 搜索查询功能
-
-#### 7. 通用工具函数 (`utils/`)
-
-- **日志工具**: 统一的日志记录系统
 
 ## 🚀 快速开始
 
 ### 安装依赖
-
 ```bash
 npm install
 ```
 
-### 开发环境运行
-
-#### 方式一：使用 ts-node-dev（推荐）
-
+### 启动开发环境
 ```bash
 npm run dev
 ```
 
-- 自动重启：修改代码后自动重启服务器
-- 快速编译：使用 transpileOnly 模式
-- 忽略文件：自动忽略 node_modules 等目录
-
-#### 方式二：使用 nodemon
-
-```bash
-npm run dev:watch
-```
-
-- 更精细的文件监控
-- 可配置的忽略规则
-- 延迟重启避免频繁重启
-
-#### 方式三：调试模式
-
-```bash
-npm run dev:debug
-```
-
-- 启用 Node.js 调试器
-- 支持断点调试
-- 自动重启功能
-
-### 生产环境运行
-
+### 生产环境
 ```bash
 npm run build
 npm run start:prod
 ```
 
 ### 其他命令
-
 ```bash
-# 编译 TypeScript
-npm run build
-
-# 直接运行（无热重载）
-npm start
-
-# 生产环境运行
-npm run start:prod
+npm run dev:watch   # nodemon 热重载
+npm run dev:debug   # 调试模式
+npm start           # 直接运行（ts-node）
 ```
 
 ## ⚙️ 配置
 
-### 环境变量
+- 端口、名称、版本、日志、会话等均可通过环境变量配置，详见 `src/config/index.ts`
+- 常用环境变量：
+  - `PORT`、`SERVER_NAME`、`SERVER_VERSION`、`NODE_ENV`、`LOG_LEVEL`、`MAX_SESSIONS`、`SESSION_TIMEOUT`
 
-| 变量名            | 默认值        | 说明             |
-| ----------------- | ------------- | ---------------- |
-| `PORT`            | `9088`        | 服务器端口       |
-| `SERVER_NAME`     | `mcp-server`  | 服务器名称       |
-| `SERVER_VERSION`  | `1.0.0`       | 服务器版本       |
-| `NODE_ENV`        | `development` | 运行环境         |
-| `LOG_LEVEL`       | `info`        | 日志级别         |
-| `MAX_SESSIONS`    | `100`         | 最大会话数       |
-| `SESSION_TIMEOUT` | `300000`      | 会话超时时间(ms) |
-| `ALLOWED_ORIGINS` | `*`           | 允许的CORS源     |
+## 🔧 可用工具（API）
 
-### 日志级别
+### 1. 天气查询 getWeather
+- 参数：`city`（可选，城市名，缺省自动定位），`unit`（可选，celsius/fahrenheit）
+- 示例：
+  ```json
+  { "city": "北京", "unit": "celsius" }
+  ```
 
-- `debug`: 调试信息
-- `info`: 一般信息
-- `warn`: 警告信息
-- `error`: 错误信息
+### 2. 定位 getLocation
+- 参数：无
+- 返回：当前定位的城市名（模拟/可扩展）
 
-## 🔧 可用工具
+### 3. 数学计算 calculate
+- 参数：`operation`（add/subtract/multiply/divide），`a`，`b`
+- 示例：
+  ```json
+  { "operation": "add", "a": 1, "b": 2 }
+  ```
 
-### 1. 天气查询 (`getWeather`)
+### 4. IoT 设备控制 iotControl
+- 参数：`deviceId`，`action`（lock/unlock/open/close/getStatus），`value`（可选）
+- 示例：
+  ```json
+  { "deviceId": "lock001", "action": "lock" }
+  ```
 
-获取指定城市的天气信息
+### 5. GitHub 搜索 search
+- 参数：`query`（关键词），可选：`language`、`stars`、`forks`、`user`、`topic`、`created`、`sort`、`order`、`limit`
+- 示例：
+  ```json
+  { "query": "nodejs", "language": "TypeScript", "limit": 3 }
+  ```
 
-**参数:**
+## 📊 健康检查
 
-- `city`: 城市名称
-- `unit`: 温度单位 (`celsius` 或 `fahrenheit`)
-
-### 2. 数学计算 (`calculate`)
-
-执行基本数学运算
-
-**参数:**
-
-- `operation`: 运算类型 (`add`, `subtract`, `multiply`, `divide`)
-- `a`: 第一个数字
-- `b`: 第二个数字
-
-### 3. 搜索查询 (`search`)
-
-执行搜索查询
-
-**参数:**
-
-- `query`: 搜索查询
-- `limit`: 返回结果数量限制
-
-## 📊 监控端点
-
-### 健康检查
-
-```
-GET /health
-```
-
-返回服务器状态信息：
-
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "activeSessions": 5
-}
-```
-
-## 🏛️ 架构优势
-
-### 1. 模块化设计
-
-- 每个功能模块独立，便于维护和扩展
-- 清晰的职责分离
-- 易于单元测试
-
-### 2. 类型安全
-
-- 完整的 TypeScript 类型定义
-- 编译时错误检查
-- 更好的开发体验
-
-### 3. 配置管理
-
-- 集中化的配置管理
-- 环境变量支持
-- 灵活的配置选项
-
-### 4. 日志系统
-
-- 统一的日志记录
-- 可配置的日志级别
-- 结构化日志输出
-
-### 5. 会话管理
-
-- 自动会话超时
-- 会话数量限制
-- 内存泄漏防护
-
-### 6. 错误处理
-
-- 统一的错误处理机制
-- 详细的错误日志
-- 友好的错误响应
-
-### 7. 开发体验
-
-- 热重载开发环境
-- 自动重启功能
-- 调试支持
-
-## 🔄 扩展新功能
-
-### 添加新工具
-
-1. 在 `src/tools/` 创建新的工具文件
-2. 定义参数类型和实现函数
-3. 在 `src/tools/index.ts` 中注册工具
-4. 更新类型定义
-
-### 添加新服务
-
-1. 在 `src/services/` 创建新的服务类
-2. 实现业务逻辑
-3. 在相应的路由或服务中使用
-
-### 添加新中间件
-
-1. 在 `src/middleware/` 创建新的中间件
-2. 在 `src/app.ts` 中注册中间件
-
-### 添加新工具函数
-
-1. 在 `src/utils/` 创建新的工具函数
-2. 在 `src/utils/index.ts` 中导出
+- `GET /health` 返回服务器状态
 
 ## 🧪 测试
 
-```bash
-npm test
-```
+所有测试脚本位于 `test/` 目录：
+- `test/test-mcp.js`、`test/test-modular.js`、`test/test-tools-rename.js`
+- 运行示例：
+  ```bash
+  node test/test-mcp.js
+  node test/test-modular.js
+  node test/test-tools-rename.js
+  ```
+
+## 🔄 扩展指引
+- 新增工具：在 `src/tools/` 新建文件并注册
+- 新增服务/中间件/类型：参考现有目录结构
 
 ## 📝 许可证
+ISC
 
+---
+
+# MCP Server - Modular Multi-Tool Service (English)
+
+## 📝 Introduction
+MCP Server is a modular backend based on Model Context Protocol (MCP), supporting weather, location, calculator, IoT device control, GitHub search and more. Ideal for AI agents and assistant scenarios.
+
+## 📁 Structure
+See above for directory tree. Main code in `src/`, tests in `test/`.
+
+## 🚀 Quick Start
+
+### Install dependencies
+```bash
+npm install
+```
+
+### Start development server
+```bash
+npm run dev
+```
+
+### Production
+```bash
+npm run build
+npm run start:prod
+```
+
+### Other scripts
+```bash
+npm run dev:watch   # nodemon hot reload
+npm run dev:debug   # debug mode
+npm start           # direct run (ts-node)
+```
+
+## ⚙️ Configuration
+- All configs (port, name, version, log, session, etc.) via env vars, see `src/config/index.ts`
+- Common env vars: `PORT`, `SERVER_NAME`, `SERVER_VERSION`, `NODE_ENV`, `LOG_LEVEL`, `MAX_SESSIONS`, `SESSION_TIMEOUT`
+
+## 🔧 Tools (APIs)
+
+### 1. Weather getWeather
+- Params: `city` (optional, auto-location if omitted), `unit` (optional, celsius/fahrenheit)
+- Example:
+  ```json
+  { "city": "Beijing", "unit": "celsius" }
+  ```
+
+### 2. Location getLocation
+- Params: none
+- Returns: current city (mocked/extendable)
+
+### 3. Calculator calculate
+- Params: `operation` (add/subtract/multiply/divide), `a`, `b`
+- Example:
+  ```json
+  { "operation": "add", "a": 1, "b": 2 }
+  ```
+
+### 4. IoT Device Control iotControl
+- Params: `deviceId`, `action` (lock/unlock/open/close/getStatus), `value` (optional)
+- Example:
+  ```json
+  { "deviceId": "lock001", "action": "lock" }
+  ```
+
+### 5. GitHub Search search
+- Params: `query` (keyword), optional: `language`, `stars`, `forks`, `user`, `topic`, `created`, `sort`, `order`, `limit`
+- Example:
+  ```json
+  { "query": "nodejs", "language": "TypeScript", "limit": 3 }
+  ```
+
+## 📊 Health Check
+- `GET /health` returns server status
+
+## 🧪 Testing
+All test scripts in `test/`:
+- `test/test-mcp.js`, `test/test-modular.js`, `test/test-tools-rename.js`
+- Run example:
+  ```bash
+  node test/test-mcp.js
+  node test/test-modular.js
+  node test/test-tools-rename.js
+  ```
+
+## 🔄 Extension
+- Add tool: create file in `src/tools/` and register
+- Add service/middleware/type: follow existing structure
+
+## 📝 License
 ISC
