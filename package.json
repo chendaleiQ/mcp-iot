@@ -8,11 +8,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "npx ts-node src/index.ts",
+    "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "start:prod": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/index.ts",
-    "dev:watch": "nodemon --exec ts-node src/index.ts --watch src --ext ts,js",
-    "dev:debug": "ts-node-dev --respawn --transpile-only --inspect --ignore-watch node_modules src/index.ts"
+    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules -r tsconfig-paths/register src/index.ts",
+    "dev:watch": "nodemon --exec ts-node -r tsconfig-paths/register src/index.ts --watch src --ext ts,js",
+    "dev:debug": "ts-node-dev --respawn --transpile-only --inspect --ignore-watch node_modules -r tsconfig-paths/register src/index.ts"
   },
   "files": [
     "build"
@@ -25,6 +25,7 @@
     "@modelcontextprotocol/sdk": "^1.13.1",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "iplocation": "^7.2.0",
     "request-ip": "^3.3.0",
@@ -41,6 +42,7 @@
     "nodemon": "^3.1.9",
     "prettier": "^3.6.1",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }
 }

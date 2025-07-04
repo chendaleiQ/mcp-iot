@@ -1,4 +1,4 @@
-import { logConfig } from "../config";
+import { logConfig } from '@/config';
 
 export enum LogLevel {
   DEBUG = 0,
@@ -16,57 +16,51 @@ class Logger {
 
   private getLogLevel(): LogLevel {
     switch (logConfig.level.toLowerCase()) {
-      case "debug":
+      case 'debug':
         return LogLevel.DEBUG;
-      case "info":
+      case 'info':
         return LogLevel.INFO;
-      case "warn":
+      case 'warn':
         return LogLevel.WARN;
-      case "error":
+      case 'error':
         return LogLevel.ERROR;
       default:
         return LogLevel.INFO;
     }
   }
 
-  private formatMessage(
-    level: string,
-    message: string,
-    ...args: any[]
-  ): string {
+  private formatMessage(level: string, message: string, ...args: any[]): string {
     const timestamp = new Date().toISOString();
     const formattedArgs =
       args.length > 0
         ? ` ${args
-            .map((arg) =>
-              typeof arg === "object" ? JSON.stringify(arg) : String(arg),
-            )
-            .join(" ")}`
-        : "";
+            .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
+            .join(' ')}`
+        : '';
     return `[${timestamp}] [${level}] ${message}${formattedArgs}`;
   }
 
   debug(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.DEBUG && logConfig.enableConsole) {
-      console.debug(this.formatMessage("DEBUG", message, ...args));
+      console.debug(this.formatMessage('DEBUG', message, ...args));
     }
   }
 
   info(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.INFO && logConfig.enableConsole) {
-      console.info(this.formatMessage("INFO", message, ...args));
+      console.info(this.formatMessage('INFO', message, ...args));
     }
   }
 
   warn(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.WARN && logConfig.enableConsole) {
-      console.warn(this.formatMessage("WARN", message, ...args));
+      console.warn(this.formatMessage('WARN', message, ...args));
     }
   }
 
   error(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.ERROR && logConfig.enableConsole) {
-      console.error(this.formatMessage("ERROR", message, ...args));
+      console.error(this.formatMessage('ERROR', message, ...args));
     }
   }
 }

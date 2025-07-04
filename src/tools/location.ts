@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ToolResponse } from '../types';
+import { ToolResponse } from '@/types';
 import ipLocation from 'iplocation';
 
 export const locationParams = {

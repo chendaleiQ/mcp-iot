@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { WeatherParams, ToolResponse } from '../types';
-import { getLocation } from './location';
+import { WeatherParams, ToolResponse } from '@/types';
+import { getLocation } from '@/tools/location';
 import axios from 'axios';
 
 export const weatherParams = {

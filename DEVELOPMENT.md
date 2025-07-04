@@ -172,7 +172,7 @@ PORT=9089 npm run dev
 ### 1. 日志调试
 
 ```typescript
-import { logger } from "../utils/logger";
+import { logger } from "@/utils/logger";
 
 // 添加调试日志
 logger.debug("调试信息", { data: someData });

@@ -1,9 +1,10 @@
-import express from "express";
-import cors from "cors";
-import { config } from "./config";
-import { requestLogger, errorHandler, corsOptions } from "./middleware";
-import { McpRoutes } from "./routes/mcp";
-import { logger } from "./utils/logger";
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import { config } from '@/config';
+import { requestLogger, errorHandler, corsOptions } from '@/middleware';
+import { McpRoutes } from '@/routes/mcp';
+import { logger } from '@/utils/logger';
 
 export class App {
   private app: express.Application;
@@ -25,16 +26,12 @@ export class App {
 
   private setupRoutes(): void {
     // MCP 路由
-    this.app.post("/mcp", (req, res) => this.mcpRoutes.handlePost(req, res));
-    this.app.get("/mcp", (req, res) =>
-      this.mcpRoutes.handleSessionRequest(req, res),
-    );
-    this.app.delete("/mcp", (req, res) =>
-      this.mcpRoutes.handleSessionRequest(req, res),
-    );
+    this.app.post('/mcp', (req, res) => this.mcpRoutes.handlePost(req, res));
+    this.app.get('/mcp', (req, res) => this.mcpRoutes.handleSessionRequest(req, res));
+    this.app.delete('/mcp', (req, res) => this.mcpRoutes.handleSessionRequest(req, res));
 
     // 健康检查
-    this.app.get("/health", (req, res) => {
+    this.app.get('/health', (req, res) => {
       res.json(this.mcpRoutes.getHealthInfo());
     });
 
@@ -44,7 +41,7 @@ export class App {
 
   public start(): void {
     this.app.listen(config.port, () => {
-      logger.info("MCP Server started", {
+      logger.info('MCP Server started', {
         port: config.port,
         name: config.name,
         version: config.version,

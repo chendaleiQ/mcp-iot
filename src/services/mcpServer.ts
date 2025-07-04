@@ -1,9 +1,9 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import { config } from "../config";
-import { SessionManager } from "./sessionManager";
-import { registerTools } from "../tools";
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
+import { config } from '@/config';
+import { SessionManager } from '@/services/sessionManager';
+import { registerTools } from '@/tools';
 
 export class McpServerService {
   private sessionManager: SessionManager;

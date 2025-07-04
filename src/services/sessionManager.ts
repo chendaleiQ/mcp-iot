@@ -1,28 +1,25 @@
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { TransportManager } from "../types";
-import { sessionConfig } from "../config";
-import { logger } from "../utils/logger";
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { TransportManager } from '@/types';
+import { sessionConfig } from '@/config';
+import { logger } from '@/utils/logger';
 
 export class SessionManager {
   private transports: TransportManager = {};
   private sessionTimeouts: { [sessionId: string]: NodeJS.Timeout } = {};
 
   // 添加会话
-  addSession(
-    sessionId: string,
-    transport: StreamableHTTPServerTransport,
-  ): void {
+  addSession(sessionId: string, transport: StreamableHTTPServerTransport): void {
     if (Object.keys(this.transports).length >= sessionConfig.maxSessions) {
-      logger.error("Maximum sessions reached", {
+      logger.error('Maximum sessions reached', {
         current: this.transports.length,
         max: sessionConfig.maxSessions,
       });
-      throw new Error("Maximum sessions reached");
+      throw new Error('Maximum sessions reached');
     }
 
     this.transports[sessionId] = transport;
     this.setSessionTimeout(sessionId);
-    logger.info("Session added", {
+    logger.info('Session added', {
       sessionId,
       totalSessions: this.getActiveSessionsCount(),
     });
@@ -44,7 +41,7 @@ export class SessionManager {
         delete this.sessionTimeouts[sessionId];
       }
 
-      logger.info("Session removed", {
+      logger.info('Session removed', {
         sessionId,
         totalSessions: this.getActiveSessionsCount(),
       });
@@ -70,7 +67,7 @@ export class SessionManager {
 
     // 设置新超时
     this.sessionTimeouts[sessionId] = setTimeout(() => {
-      logger.warn("Session timed out", { sessionId });
+      logger.warn('Session timed out', { sessionId });
       this.removeSession(sessionId);
     }, sessionConfig.sessionTimeout);
   }
@@ -79,7 +76,7 @@ export class SessionManager {
   refreshSession(sessionId: string): void {
     if (this.transports[sessionId]) {
       this.setSessionTimeout(sessionId);
-      logger.debug("Session refreshed", { sessionId });
+      logger.debug('Session refreshed', { sessionId });
     }
   }
 
@@ -92,6 +89,6 @@ export class SessionManager {
 
     this.transports = {};
     this.sessionTimeouts = {};
-    logger.info("All sessions cleared", { clearedCount: sessionCount });
+    logger.info('All sessions cleared', { clearedCount: sessionCount });
   }
 }

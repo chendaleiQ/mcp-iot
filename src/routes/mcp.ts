@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { McpServerService } from '../services/mcpServer';
-import { validateSession } from '../middleware';
-import { logger } from '../utils/logger';
+import { McpServerService } from '@/services/mcpServer';
+import { logger } from '@/utils/logger';
 import requestIp from 'request-ip';
 
 export class McpRoutes {

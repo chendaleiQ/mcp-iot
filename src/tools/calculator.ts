@@ -1,42 +1,36 @@
-import { z } from "zod";
-import { CalculatorParams, ToolResponse } from "../types";
+import { z } from 'zod';
+import { CalculatorParams, ToolResponse } from '@/types';
 
 export const calculatorParams = {
-  operation: z
-    .enum(["add", "subtract", "multiply", "divide"])
-    .describe("运算类型"),
-  a: z.number().describe("第一个数字"),
-  b: z.number().describe("第二个数字"),
+  operation: z.enum(['add', 'subtract', 'multiply', 'divide']).describe('运算类型'),
+  a: z.number().describe('第一个数字'),
+  b: z.number().describe('第二个数字'),
 };
 
-export async function calculate({
-  operation,
-  a,
-  b,
-}: CalculatorParams): Promise<ToolResponse> {
+export async function calculate({ operation, a, b }: CalculatorParams): Promise<ToolResponse> {
   let result: number;
   let operationSymbol: string;
 
   switch (operation) {
-    case "add":
+    case 'add':
       result = a + b;
-      operationSymbol = "+";
+      operationSymbol = '+';
       break;
-    case "subtract":
+    case 'subtract':
       result = a - b;
-      operationSymbol = "-";
+      operationSymbol = '-';
       break;
-    case "multiply":
+    case 'multiply':
       result = a * b;
-      operationSymbol = "×";
+      operationSymbol = '×';
       break;
-    case "divide":
+    case 'divide':
       if (b === 0) {
         return {
           content: [
             {
-              type: "text",
-              text: "错误：除数不能为零",
+              type: 'text',
+              text: '错误：除数不能为零',
               _meta: {},
             },
           ],
@@ -44,14 +38,14 @@ export async function calculate({
         };
       }
       result = a / b;
-      operationSymbol = "÷";
+      operationSymbol = '÷';
       break;
     default:
       return {
         content: [
           {
-            type: "text",
-            text: "错误：不支持的运算类型",
+            type: 'text',
+            text: '错误：不支持的运算类型',
             _meta: {},
           },
         ],
@@ -62,7 +56,7 @@ export async function calculate({
   return {
     content: [
       {
-        type: "text",
+        type: 'text',
         text: `${a} ${operationSymbol} ${b} = ${result}`,
         _meta: {},
       },
